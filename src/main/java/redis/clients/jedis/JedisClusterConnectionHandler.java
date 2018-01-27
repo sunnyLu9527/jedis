@@ -26,14 +26,32 @@ public abstract class JedisClusterConnectionHandler implements Closeable {
 
   abstract Jedis getConnectionFromSlot(int slot);
 
+    /**
+     * 通过HostAndPort获取缓存的Jedis实例
+     * @param node
+     * @return
+     */
   public Jedis getConnectionFromNode(HostAndPort node) {
     return cache.setupNodeIfNotExist(node).getResource();
   }
-  
+
+    /**
+     * 获取node-pool映射缓存
+     * @return
+     */
   public Map<String, JedisPool> getNodes() {
     return cache.getNodes();
   }
 
+    /**
+     * 初始化缓存映射
+     * @param startNodes
+     * @param poolConfig
+     * @param connectionTimeout
+     * @param soTimeout
+     * @param password
+     * @param clientName
+     */
   private void initializeSlotsCache(Set<HostAndPort> startNodes, GenericObjectPoolConfig poolConfig,
                                     int connectionTimeout, int soTimeout, String password, String clientName) {
     for (HostAndPort hostAndPort : startNodes) {
@@ -46,7 +64,7 @@ public abstract class JedisClusterConnectionHandler implements Closeable {
         if (clientName != null) {
           jedis.clientSetname(clientName);
         }
-        cache.discoverClusterNodesAndSlots(jedis);
+        cache.discoverClusterNodesAndSlots(jedis);//建立node-pool映射缓存 slot-pool映射缓存
         break;
       } catch (JedisConnectionException e) {
         // try next nodes
@@ -58,16 +76,23 @@ public abstract class JedisClusterConnectionHandler implements Closeable {
     }
   }
 
+    /**
+     * 重置缓存映射
+     */
   public void renewSlotCache() {
     cache.renewClusterSlots(null);
   }
 
+    /**
+     * 重置缓存映射
+     * @param jedis
+     */
   public void renewSlotCache(Jedis jedis) {
     cache.renewClusterSlots(jedis);
   }
 
   @Override
   public void close() {
-    cache.reset();
+    cache.reset();//清空缓存；释放pool
   }
 }

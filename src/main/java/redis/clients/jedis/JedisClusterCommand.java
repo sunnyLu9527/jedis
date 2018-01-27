@@ -44,7 +44,7 @@ public abstract class JedisClusterCommand<T> {
       int slot = JedisClusterCRC16.getSlot(keys[0]);
       for (int i = 1; i < keyCount; i++) {
         int nextSlot = JedisClusterCRC16.getSlot(keys[i]);
-        if (slot != nextSlot) {
+        if (slot != nextSlot) {//同时处理多个key时,如果key所属slot不相同，jedisCluster不支持此种操作
           throw new JedisClusterException("No way to dispatch this command to Redis Cluster "
               + "because keys have different slots.");
         }
@@ -73,7 +73,7 @@ public abstract class JedisClusterCommand<T> {
       int slot = JedisClusterCRC16.getSlot(keys[0]);
       for (int i = 1; i < keyCount; i++) {
         int nextSlot = JedisClusterCRC16.getSlot(keys[i]);
-        if (slot != nextSlot) {
+        if (slot != nextSlot) {//同时处理多个key时,如果key所属slot不相同，jedisCluster不支持此种操作
           throw new JedisClusterException("No way to dispatch this command to Redis Cluster "
               + "because keys have different slots.");
         }
@@ -103,7 +103,7 @@ public abstract class JedisClusterCommand<T> {
     Jedis connection = null;
     try {
 
-      if (asking) {
+      if (asking) {//服务端返回ask
         // TODO: Pipeline asking with the original command to make it
         // faster....
         connection = askConnection.get();
@@ -115,7 +115,7 @@ public abstract class JedisClusterCommand<T> {
         if (tryRandomNode) {
           connection = connectionHandler.getConnection();
         } else {
-          connection = connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));
+          connection = connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));//从缓存中获取jedis实例
         }
       }
 
@@ -128,7 +128,7 @@ public abstract class JedisClusterCommand<T> {
       releaseConnection(connection);
       connection = null;
 
-      if (attempts <= 1) {
+      if (attempts <= 1) {//重试次数到了限制之后 重置缓存；抛出异常
         //We need this because if node is not reachable anymore - we need to finally initiate slots renewing,
         //or we can stuck with cluster state without one node in opposite case.
         //But now if maxAttempts = 1 or 2 we will do it too often. For each time-outed request.
@@ -146,14 +146,14 @@ public abstract class JedisClusterCommand<T> {
       if (jre instanceof JedisMovedDataException) {
         // it rebuilds cluster's slot cache
         // recommended by Redis cluster specification
-        this.connectionHandler.renewSlotCache(connection);
+        this.connectionHandler.renewSlotCache(connection);//服务器返回moved 重置缓存
       }
 
       // release current connection before recursion or renewing
       releaseConnection(connection);
       connection = null;
 
-      if (jre instanceof JedisAskDataException) {
+      if (jre instanceof JedisAskDataException) {//服务器返回ask 不须要重置缓存
         asking = true;
         askConnection.set(this.connectionHandler.getConnectionFromNode(jre.getTargetNode()));
       } else if (jre instanceof JedisMovedDataException) {

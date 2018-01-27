@@ -28,6 +28,10 @@ public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandl
     super(nodes, poolConfig, connectionTimeout, soTimeout, password, clientName);
   }
 
+    /**
+     * 随机获取一个jedis连接实例
+     * @return
+     */
   @Override
   public Jedis getConnection() {
     // In antirez's redis-rb-cluster implementation,
@@ -61,6 +65,11 @@ public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandl
     throw new JedisNoReachableClusterNodeException("No reachable node in cluster");
   }
 
+    /**
+     * 获取指定slot所在的jedis实例
+     * @param slot
+     * @return
+     */
   @Override
   public Jedis getConnectionFromSlot(int slot) {
     JedisPool connectionPool = cache.getSlotPool(slot);
