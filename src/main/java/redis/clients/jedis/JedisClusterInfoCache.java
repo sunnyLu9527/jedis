@@ -78,7 +78,7 @@ public class JedisClusterInfoCache {
           HostAndPort targetNode = generateHostAndPort(hostInfos);//生成节点host+port
           setupNodeIfNotExist(targetNode);//node-pool映射缓存
           if (i == MASTER_NODE_INDEX) {
-            assignSlotsToNode(slotNums, targetNode);//slot-pool映射缓存
+            assignSlotsToNode(slotNums, targetNode);//slot-pool映射缓存 基于master节点
           }
         }
       }
@@ -203,7 +203,7 @@ public class JedisClusterInfoCache {
   }
 
     /**
-     * slot-pool映射缓存
+     * slot-pool映射缓存 基于master节点
      * @param targetSlots
      * @param targetNode
      */
@@ -235,7 +235,8 @@ public class JedisClusterInfoCache {
 
     /**
      * 从缓存中通过slot获取JedisPool
-      * @param slot
+     * 此JedisPool是基于master
+     * @param slot
      * @return
      */
   public JedisPool getSlotPool(int slot) {

@@ -67,6 +67,7 @@ public class JedisSlotBasedConnectionHandler extends JedisClusterConnectionHandl
 
     /**
      * 获取指定slot所在的jedis实例
+     * 此jedis实例是master实例
      * @param slot
      * @return
      */

@@ -113,7 +113,7 @@ public abstract class JedisClusterCommand<T> {
         asking = false;
       } else {
         if (tryRandomNode) {
-          connection = connectionHandler.getConnection();
+          connection = connectionHandler.getConnection();//随机获取一个jedis实例
         } else {
           connection = connectionHandler.getConnectionFromSlot(JedisClusterCRC16.getSlot(key));//从缓存中获取jedis实例
         }

@@ -103,7 +103,7 @@ public class JedisCluster extends BinaryJedisCluster implements JedisClusterComm
 }
 
   @Override
-  public String set(final String key, final String value) {//抽象类可以已子类的形式实例化，代理模式的最佳实践方式
+  public String set(final String key, final String value) {//抽象类可以已子类的形式实例化，代理模式的最佳实践方式jedisCluster代理jedis
     return new JedisClusterCommand<String>(connectionHandler, maxAttempts) {
       @Override
       public String execute(Jedis connection) {

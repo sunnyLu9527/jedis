@@ -91,7 +91,7 @@ public class JedisSentinelPool extends JedisPoolAbstract {
     this.database = database;
     this.clientName = clientName;
 
-    HostAndPort master = initSentinels(sentinels, masterName);
+    HostAndPort master = initSentinels(sentinels, masterName);//自动通过sentinel获取到master
     initPool(master);
   }
 
